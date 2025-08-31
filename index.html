@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Racing Extreme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #2a5298);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+            color: #ff6b6b;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #f0f0f0;
+        }
+
+        #game-container {
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+        }
+
+        canvas {
+            background-color: #1e5128;
+            display: block;
+            border: 4px solid #4e9f3d;
+            border-radius: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .controls {
+            background: rgba(30, 30, 46, 0.8);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            width: 100%;
+            max-width: 750px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls h2 {
+            color: #4e9f3d;
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .instructions {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .instruction-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .key {
+            display: inline-block;
+            background: #1a1a2e;
+            color: white;
+            padding: 4px 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #4e9f3d;
+            min-width: 36px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .powerup {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .shield {
+            background: #00ffff;
+        }
+
+        .boost {
+            background: #ffa500;
+        }
+
+        .slow {
+            background: #9370db;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #4e9f3d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            min-width: 120px;
+        }
+
+        button:hover {
+            background: #3e7c2f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.3rem;
+            color: white;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px 30px;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .touch-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 15px;
+            padding: 0 10px;
+        }
+
+        .touch-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(78, 159, 61, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        footer {
+            margin-top: 15px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.85rem;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .controls {
+                padding: 12px 15px;
+            }
+
+            .controls h2 {
+                font-size: 1.2rem;
+            }
+
+            .instruction-item {
+                font-size: 0.9rem;
+            }
+
+            button {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+
+            .touch-btn {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .instruction-group {
+                min-width: 140px;
+            }
+
+            .touch-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Car Racing Extreme</h1>
+        <p class="subtitle">Avoid obstacles, collect power-ups, and set a high score!</p>
+    </header>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="score-display">Score: <span id="score">0</span> | High: <span id="high-score">0</span></div>
+        <div id="loading">Loading game engine...</div>
+    </div>
+
+    <div class="touch-controls" id="touchControls">
+        <div class="touch-btn" id="leftBtn">←</div>
+        <div class="touch-btn" id="rightBtn">→</div>
+    </div>
+
+    <div class="controls">
+        <h2>Game Controls</h2>
+        <div class="instructions">
+            <div class="instruction-group">
+                <div class="instruction-item">
+                    <span class="key">←</span> Move Left
+                </div>
+                <div class="instruction-item">
+                    <span class="key">→</span> Move Right
+                </div>
+                <div class="instruction-item">
+                    <span class="key">P</span> Pause Game
+                </div>
+                <div class="instruction-item">
+                    <span class="key">R</span> Restart Game
+                </div>
+            </div>
+            <div class="instruction-group">
+                <div class="instruction-item">
+                    <span class="powerup shield"></span> Shield (Invincibility)
+                </div>
+                <div class="instruction-item">
+                    <span class="powerup boost"></span> Boost (Speed Up)
+                </div>
+                <div class="instruction-item">
+                    <span class="powerup slow"></span> Slow (Slow Obstacles)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button id="startBtn">Start Game</button>
+        <button id="pauseBtn">Pause Game</button>
+        <button id="restartBtn">Restart Game</button>
+    </div>
+
+    <footer>
+        <p>Created with JavaScript Canvas API | Works on phones and laptops</p>
+    </footer>
+
+    <script>
+        // Game variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('high-score');
+        const loadingDisplay = document.getElementById('loading');
+        const touchControls = document.getElementById('touchControls');
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+
+        // Set canvas size based on device
+        function setCanvasSize() {
+            if (window.innerWidth <= 768) {
+                // Mobile devices
+                canvas.width = Math.min(400, window.innerWidth - 40);
+                canvas.height = 500;
+            } else {
+                // Desktop devices
+                canvas.width = 600;
+                canvas.height = 600;
+            }
+        }
+
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Game state
+        let score = 0;
+        let highScore = 0;
+        let gameOver = false;
+        let gameStarted = false;
+        let gamePaused = false;
+        let roadSpeed = 5;
+        let roadWidth = canvas.width * 0.6;
+        let roadX = (canvas.width - roadWidth) / 2;
+        let leftEdge = roadX;
+        let rightEdge = roadX + roadWidth;
+        let obstacleTimer = 0;
+        let powerUpTimer = 0;
+        let level = 1;
+        let scoreToNextLevel = 20;
+        let isMobile = window.innerWidth <= 768;
+
+        // Colors
+        const colors = {
+            BLACK: '#000000',
+            WHITE: '#ffffff',
+            RED: '#ff3232',
+            GREEN: '#32c832',
+            BLUE: '#3232ff',
+            YELLOW: '#ffff00',
+            GRAY: '#646464',
+            DARK_GRAY: '#323232',
+            ORANGE: '#ffa500',
+            PURPLE: '#9370db',
+            CYAN: '#00ffff',
+            DARK_GREEN: '#1e5128'
+        };
+
+        // Player car
+        const player = {
+            width: canvas.width * 0.08,
+            height: canvas.width * 0.12,
+            x: canvas.width / 2 - (canvas.width * 0.08) / 2,
+            y: canvas.height - canvas.width * 0.15,
+            speed: 8,
+            color: colors.RED,
+            shieldActive: false,
+            shieldTime: 0,
+            boostActive: false,
+            boostTime: 0,
+            slowActive: false,
+            slowTime: 0,
+
+            draw: function () {
+                // Draw shield if active
+                if (this.shieldActive) {
+                    const shieldRadius = Math.max(this.width, this.height) + 10;
+                    const pulse = Math.sin(Date.now() * 0.01) * 3 + shieldRadius;
+
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, pulse, 0, Math.PI * 2);
+                    ctx.strokeStyle = colors.CYAN;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+
+                // Car body
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+                // Windows
+                ctx.fillStyle = colors.BLUE;
+                ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, 15);
+                ctx.fillRect(this.x + 5, this.y + 30, this.width - 10, 15);
+
+                // Wheels
+                ctx.fillStyle = colors.BLACK;
+                ctx.fillRect(this.x - 5, this.y + 10, 5, 15);
+                ctx.fillRect(this.x + this.width, this.y + 10, 5, 15);
+                ctx.fillRect(this.x - 5, this.y + this.height - 25, 5, 15);
+                ctx.fillRect(this.x + this.width, this.y + this.height - 25, 5, 15);
+
+                // Draw boost effect if active
+                if (this.boostActive) {
+                    ctx.fillStyle = colors.ORANGE;
+                    for (let i = 0; i < 5; i++) {
+                        ctx.fillRect(this.x + this.width / 2 - 2, this.y + this.height + i * 5, 4, 10);
+                    }
+                }
+            },
+
+            move: function (direction) {
+                if (direction === "left" && this.x > leftEdge + 10) {
+                    this.x -= this.speed;
+                }
+                if (direction === "right" && this.x < rightEdge - this.width - 10) {
+                    this.x += this.speed;
+                }
+            },
+
+            updatePowerups: function () {
+                const currentTime = Date.now();
+                if (this.shieldActive && currentTime - this.shieldTime > 5000) {
+                    this.shieldActive = false;
+                }
+                if (this.boostActive && currentTime - this.boostTime > 3000) {
+                    this.boostActive = false;
+                    this.speed = 8;
+                }
+                if (this.slowActive && currentTime - this.slowTime > 4000) {
+                    this.slowActive = false;
+                }
+            }
+        };
+
+        // Adjust player size on resize
+        function adjustPlayerSize() {
+            player.width = canvas.width * 0.08;
+            player.height = canvas.width * 0.12;
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - canvas.width * 0.15;
+        }
+
+        // Obstacles array
+        let obstacles = [];
+
+        // Obstacle class
+        class Obstacle {
+            constructor() {
+                this.width = canvas.width * 0.08;
+                this.height = canvas.width * 0.12;
+                this.x = Math.random() * (rightEdge - leftEdge - this.width - 20) + leftEdge + 10;
+                this.y = -this.height;
+                this.speed = 3 + Math.random() * 4;
+                this.color = `rgb(${50 + Math.random() * 150}, ${50 + Math.random() * 150}, ${50 + Math.random() * 150})`;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+                // Windows
+                ctx.fillStyle = colors.BLUE;
+                ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, 15);
+                ctx.fillRect(this.x + 5, this.y + 30, this.width - 10, 15);
+
+                // Wheels
+                ctx.fillStyle = colors.BLACK;
+                ctx.fillRect(this.x - 5, this.y + 10, 5, 15);
+                ctx.fillRect(this.x + this.width, this.y + 10, 5, 15);
+                ctx.fillRect(this.x - 5, this.y + this.height - 25, 5, 15);
+                ctx.fillRect(this.x + this.width, this.y + this.height - 25, 5, 15);
+            }
+
+            move(slowMode) {
+                const actualSpeed = slowMode ? this.speed * 0.5 : this.speed;
+                this.y += actualSpeed;
+                return this.y > canvas.height;
+            }
+        }
+
+        // Power-ups array
+        let powerUps = [];
+
+        // Power-up class
+        class PowerUp {
+            constructor() {
+                this.width = canvas.width * 0.05;
+                this.height = canvas.width * 0.05;
+                this.x = Math.random() * (rightEdge - leftEdge - this.width - 20) + leftEdge + 10;
+                this.y = -this.height;
+                this.speed = 5;
+                this.type = ["shield", "boost", "slow"][Math.floor(Math.random() * 3)];
+                this.colors = {
+                    "shield": colors.CYAN,
+                    "boost": colors.ORANGE,
+                    "slow": colors.PURPLE
+                };
+            }
+
+            draw() {
+                ctx.fillStyle = this.colors[this.type];
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+
+                // Draw symbol based on type
+                ctx.strokeStyle = colors.WHITE;
+                ctx.lineWidth = 2;
+
+                if (this.type === "shield") {
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 10, 0, Math.PI * 2);
+                    ctx.stroke();
+                } else if (this.type === "boost") {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 5, this.y + 20);
+                    ctx.lineTo(this.x + this.width / 2, this.y + 5);
+                    ctx.lineTo(this.x + this.width - 5, this.y + 20);
+                    ctx.closePath();
+                    ctx.stroke();
+                } else { // slow
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 12, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 5, this.y + this.height / 2);
+                    ctx.lineTo(this.x + this.width - 5, this.y + this.height / 2);
+                    ctx.stroke();
+                }
+            }
+
+            move() {
+                this.y += this.speed;
+                return this.y > canvas.height;
+            }
+        }
+
+        // Road marks array
+        let roadMarks = [];
+
+        // Road mark class
+        class RoadMark {
+            constructor(y) {
+                this.x = roadX + roadWidth / 2 - 5;
+                this.y = y;
+                this.width = 10;
+                this.height = 50;
+            }
+
+            draw() {
+                ctx.fillStyle = colors.YELLOW;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            move(boostMode) {
+                const actualSpeed = boostMode ? roadSpeed * 2 : roadSpeed;
+                this.y += actualSpeed;
+                if (this.y > canvas.height) {
+                    this.y = -this.height;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        // Initialize road marks
+        function initRoadMarks() {
+            roadMarks = [];
+            for (let i = 0; i < 5; i++) {
+                roadMarks.push(new RoadMark(i * 100));
+            }
+        }
+
+        initRoadMarks();
+
+        // Draw game background
+        function drawBackground() {
+            // Draw grass
+            ctx.fillStyle = colors.DARK_GREEN;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw road
+            ctx.fillStyle = colors.GRAY;
+            ctx.fillRect(roadX, 0, roadWidth, canvas.height);
+
+            // Draw road edges
+            ctx.fillStyle = colors.YELLOW;
+            ctx.fillRect(roadX, 0, 10, canvas.height);
+            ctx.fillRect(roadX + roadWidth - 10, 0, 10, canvas.height);
+        }
+
+        // Draw text with shadow
+        function drawText(text, x, y, size, color, align = 'left') {
+            ctx.font = `${size}px Arial`;
+            ctx.fillStyle = color;
+            ctx.textAlign = align;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            ctx.fillText(text, x, y);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        // Draw button
+        function drawButton(x, y, width, height, text, color, hoverColor) {
+            const mouseX = mousePos.x;
+            const mouseY = mousePos.y;
+            const isHover = mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height;
+
+            ctx.fillStyle = isHover ? hoverColor : color;
+            ctx.fillRect(x, y, width, height);
+
+            ctx.strokeStyle = colors.WHITE;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+
+            drawText(text, x + width / 2, y + height / 2 + 5, 20, colors.WHITE, 'center');
+
+            return isHover;
+        }
+
+        // Mouse position
+        const mousePos = { x: 0, y: 0 };
+
+        // Start game function
+        function startGame() {
+            gameStarted = true;
+            gameOver = false;
+            score = 0;
+            obstacles = [];
+            powerUps = [];
+            level = 1;
+            scoreToNextLevel = 20;
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - canvas.width * 0.15;
+            player.shieldActive = false;
+            player.boostActive = false;
+            player.slowActive = false;
+            scoreDisplay.textContent = score;
+
+            // Show/hide touch controls based on device
+            touchControls.style.display = isMobile ? 'flex' : 'none';
+        }
+
+        // Main game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!gameStarted) {
+                // Draw menu screen
+                drawBackground();
+
+                // Title
+                drawText("RACING EXTREME", canvas.width / 2, 100, 36, colors.RED, 'center');
+
+                // Start button
+                const buttonHover = drawButton(canvas.width / 2 - 80, 250, 160, 50, "Start Game", colors.GREEN, '#3e7c2f');
+
+                // Instructions
+                drawText("Use arrow keys or touch controls to play",
+                    canvas.width / 2, 350, 16, colors.WHITE, 'center');
+                drawText("Avoid obstacles and collect power-ups!",
+                    canvas.width / 2, 380, 16, colors.WHITE, 'center');
+
+                // High score
+                drawText(`High Score: ${highScore}`, canvas.width / 2, 450, 20, colors.YELLOW, 'center');
+
+                // Check for button click
+                if (buttonHover && mouseClicked) {
+                    startGame();
+                    mouseClicked = false;
+                }
+
+            } else if (gamePaused) {
+                // Draw pause screen overlay
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                drawText("GAME PAUSED", canvas.width / 2, canvas.height / 2 - 50, 36, colors.WHITE, 'center');
+                drawText("Press P to continue or click Resume",
+                    canvas.width / 2, canvas.height / 2 + 20, 16, colors.WHITE, 'center');
+
+            } else if (!gameOver) {
+                // Draw game elements
+                drawBackground();
+
+                // Move and draw road marks
+                for (const mark of roadMarks) {
+                    mark.move(player.boostActive);
+                    mark.draw();
+                }
+
+                // Update power-up timers
+                player.updatePowerups();
+
+                // Create new obstacles
+                obstacleTimer++;
+                if (obstacleTimer > 60 - Math.min(level * 5, 40)) {
+                    obstacles.push(new Obstacle());
+                    obstacleTimer = 0;
+                }
+
+                // Create power-ups
+                powerUpTimer++;
+                if (powerUpTimer > 300) {
+                    if (Math.random() < 0.3) {
+                        powerUps.push(new PowerUp());
+                    }
+                    powerUpTimer = 0;
+                }
+
+                // Move and draw obstacles
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    if (obstacles[i].move(player.slowActive)) {
+                        obstacles.splice(i, 1);
+                        score++;
+                        scoreDisplay.textContent = score;
+                    } else {
+                        obstacles[i].draw();
+                    }
+                }
+
+                // Move and draw power-ups
+                for (let i = powerUps.length - 1; i >= 0; i--) {
+                    if (powerUps[i].move()) {
+                        powerUps.splice(i, 1);
+                    } else {
+                        powerUps[i].draw();
+                    }
+                }
+
+                // Draw player
+                player.draw();
+
+                // Check for level up
+                if (score >= scoreToNextLevel) {
+                    level++;
+                    scoreToNextLevel += level * 15;
+                    roadSpeed += 0.5;
+                }
+
+                // Collision detection with obstacles
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const o = obstacles[i];
+                    if (player.x < o.x + o.width &&
+                        player.x + player.width > o.x &&
+                        player.y < o.y + o.height &&
+                        player.y + player.height > o.y) {
+
+                        if (player.shieldActive) {
+                            obstacles.splice(i, 1);
+                        } else {
+                            gameOver = true;
+                            if (score > highScore) {
+                                highScore = score;
+                                highScoreDisplay.textContent = highScore;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Collision detection with power-ups
+                for (let i = powerUps.length - 1; i >= 0; i--) {
+                    const p = powerUps[i];
+                    if (player.x < p.x + p.width &&
+                        player.x + player.width > p.x &&
+                        player.y < p.y + p.height &&
+                        player.y + player.height > p.y) {
+
+                        if (p.type === "shield") {
+                            player.shieldActive = true;
+                            player.shieldTime = Date.now();
+                        } else if (p.type === "boost") {
+                            player.boostActive = true;
+                            player.boostTime = Date.now();
+                            player.speed = 12;
+                        } else if (p.type === "slow") {
+                            player.slowActive = true;
+                            player.slowTime = Date.now();
+                        }
+
+                        powerUps.splice(i, 1);
+                    }
+                }
+
+                // Draw HUD
+                drawText(`Score: ${score}`, 10, 30, 20, colors.WHITE);
+                drawText(`Level: ${level}`, 10, 60, 20, colors.WHITE);
+
+                // Next level progress
+                const progressWidth = 150;
+                const progressFill = (score / scoreToNextLevel) * progressWidth;
+
+                ctx.fillStyle = colors.DARK_GRAY;
+                ctx.fillRect(canvas.width - progressWidth - 10, 10, progressWidth, 15);
+
+                ctx.fillStyle = colors.BLUE;
+                ctx.fillRect(canvas.width - progressWidth - 10, 10, progressFill, 15);
+
+                ctx.strokeStyle = colors.WHITE;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(canvas.width - progressWidth - 10, 10, progressWidth, 15);
+
+                drawText(`Next: ${scoreToNextLevel}`, canvas.width - progressWidth - 10, 30, 12, colors.WHITE);
+
+                // Active power-ups display
+                let powerupY = 90;
+                if (player.shieldActive) {
+                    drawText("Shield Active", 10, powerupY, 14, colors.CYAN);
+                    powerupY += 20;
+                }
+                if (player.boostActive) {
+                    drawText("Boost Active", 10, powerupY, 14, colors.ORANGE);
+                    powerupY += 20;
+                }
+                if (player.slowActive) {
+                    drawText("Slow Active", 10, powerupY, 14, colors.PURPLE);
+                }
+
+            } else {
+                // Draw game over screen
+                drawBackground();
+
+                // Draw game elements
+                for (const mark of roadMarks) {
+                    mark.draw();
+                }
+                for (const obstacle of obstacles) {
+                    obstacle.draw();
+                }
+                for (const powerUp of powerUps) {
+                    powerUp.draw();
+                }
+                player.draw();
+
+                // Draw overlay
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                drawText("GAME OVER", canvas.width / 2, canvas.height / 2 - 50, 36, colors.RED, 'center');
+                drawText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 10, 24, colors.WHITE, 'center');
+                drawText(`High Score: ${highScore}`, canvas.width / 2, canvas.height / 2 + 50, 24, colors.YELLOW, 'center');
+                drawText("Press R to restart or click Restart",
+                    canvas.width / 2, canvas.height / 2 + 100, 14, colors.WHITE, 'center');
+            }
+
+            // Reset mouse click state
+            mouseClicked = false;
+
+            // Continue the game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Input handling
+        let keys = {};
+        let mouseClicked = false;
+        let leftPressed = false;
+        let rightPressed = false;
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+
+            if (e.key === 'p' && gameStarted && !gameOver) {
+                gamePaused = !gamePaused;
+            }
+
+            if (e.key === 'r' && gameOver) {
+                startGame();
+            }
+
+            if (e.key === 'Escape') {
+                if (gamePaused || gameOver) {
+                    gameStarted = false;
+                    gamePaused = false;
+                } else {
+                    gamePaused = true;
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('click', () => {
+            mouseClicked = true;
+        });
+
+        // Touch controls for mobile
+        leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            leftPressed = true;
+        });
+
+        leftBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            leftPressed = false;
+        });
+
+        rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            rightPressed = true;
+        });
+
+        rightBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            rightPressed = false;
+        });
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', (e) => {
+            if (e.target === leftBtn || e.target === rightBtn) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Button event handlers
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!gameStarted) {
+                startGame();
+            }
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            if (gameStarted && !gameOver) {
+                gamePaused = !gamePaused;
+            }
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            startGame();
+        });
+
+        // Process input
+        function processInput() {
+            if (keys['ArrowLeft'] || leftPressed) {
+                player.move('left');
+            }
+            if (keys['ArrowRight'] || rightPressed) {
+                player.move('right');
+            }
+        }
+
+        // Update function
+        function update() {
+            if (gameStarted && !gamePaused && !gameOver) {
+                processInput();
+            }
+        }
+
+        // Main update loop
+        function updateLoop() {
+            update();
+            setTimeout(updateLoop, 1000 / 60);
+        }
+
+        // Hide loading message and start the game
+        setTimeout(() => {
+            loadingDisplay.style.display = 'none';
+            gameLoop();
+            updateLoop();
+        }, 1500);
+    </script>
+</body>
+
+</html>
